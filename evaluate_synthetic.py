@@ -18,33 +18,33 @@ from alg import CLR_VND
 # Config
 # ──────────────────────────────────────────────────────────────
 RANDOM_STATE = 42
-N_PER_CLASS  = 100
-K_TRUE       = 3
-K_VALUES     = [3]
-K_NEIGHBORS  = 5
+N_PER_CLASS = 100
+K_TRUE = 3
+K_VALUES = [3]
+K_NEIGHBORS = 5
 ALPHA_VALUES = [1.0, 0.9, 0.75, 0.5, 0.25, 0.1]
 
 MU = [
-    np.array([-4., -4.]),
-    np.array([ 0.,  0.]),
-    np.array([ 4., -4.]),
+    np.array([-4.0, -4.0]),
+    np.array([0.0, 0.0]),
+    np.array([4.0, -4.0]),
 ]
 
 SIGMAS = {
     "DS1": [
-        np.array([[1.,   0.  ], [0.,   1.  ]]),
-        np.array([[1.,   0.  ], [0.,   1.  ]]),
-        np.array([[1.,   0.  ], [0.,   1.  ]]),
+        np.array([[1.0, 0.0], [0.0, 1.0]]),
+        np.array([[1.0, 0.0], [0.0, 1.0]]),
+        np.array([[1.0, 0.0], [0.0, 1.0]]),
     ],
     "DS2": [
-        np.array([[1.,   0.  ], [0.,  15.  ]]),
-        np.array([[1.,   0.  ], [0.,  15.  ]]),
-        np.array([[1.,   0.  ], [0.,  15.  ]]),
+        np.array([[1.0, 0.0], [0.0, 15.0]]),
+        np.array([[1.0, 0.0], [0.0, 15.0]]),
+        np.array([[1.0, 0.0], [0.0, 15.0]]),
     ],
     "DS3": [
-        np.array([[0.01, 0.  ], [0.,  15.  ]]),
-        np.array([[1.,   0.  ], [0.,   1.  ]]),
-        np.array([[15.,  0.  ], [0.,   0.01]]),
+        np.array([[0.01, 0.0], [0.0, 15.0]]),
+        np.array([[1.0, 0.0], [0.0, 1.0]]),
+        np.array([[15.0, 0.0], [0.0, 0.01]]),
     ],
     "DS4": [
         np.array([[4.30, -8.27], [-8.27, 15.89]]),
@@ -52,9 +52,9 @@ SIGMAS = {
         np.array([[4.30, -8.27], [-8.27, 15.89]]),
     ],
     "DS5": [
-        np.array([[4.30,  -8.27], [-8.27, 15.89]]),
-        np.array([[1.,    -1.  ], [-1.,    1.  ]]),
-        np.array([[15.89,  8.27], [ 8.27,  4.30]]),
+        np.array([[4.30, -8.27], [-8.27, 15.89]]),
+        np.array([[1.0, -1.0], [-1.0, 1.0]]),
+        np.array([[15.89, 8.27], [8.27, 4.30]]),
     ],
 }
 
@@ -70,14 +70,19 @@ DESCRIPTIONS = {
 def generate_dataset(sigmas, n_per_class=N_PER_CLASS, seed=RANDOM_STATE):
     rng = np.random.RandomState(seed)
     coef = [
-        np.array([ 1.,  1., -1.]),
-        np.array([ 1., -1.,  1.]),
-        np.array([-1.,  1.,  1.]),
+        np.array([1.0, 1.0, -1.0]),
+        np.array([1.0, -1.0, 1.0]),
+        np.array([-1.0, 1.0, 1.0]),
     ]
     X_parts, y_parts = [], []
     for k in range(3):
         Xk = rng.multivariate_normal(MU[k], sigmas[k], size=n_per_class)
-        yk = coef[k][0] + coef[k][1]*Xk[:,0] + coef[k][2]*Xk[:,1] + rng.randn(n_per_class)
+        yk = (
+            coef[k][0]
+            + coef[k][1] * Xk[:, 0]
+            + coef[k][2] * Xk[:, 1]
+            + rng.randn(n_per_class)
+        )
         X_parts.append(Xk)
         y_parts.append(yk)
     X = np.vstack(X_parts)
@@ -91,7 +96,7 @@ def generate_dataset(sigmas, n_per_class=N_PER_CLASS, seed=RANDOM_STATE):
 
 def metrics(y_true, y_pred):
     rmse = np.sqrt(mean_squared_error(y_true, y_pred))
-    r2   = r2_score(y_true, y_pred)
+    r2 = r2_score(y_true, y_pred)
     return rmse, r2
 
 
@@ -128,6 +133,7 @@ def print_table(all_rows, baseline_row, sort_by="rmse"):
 
 if __name__ == "__main__":
     import warnings
+
     warnings.filterwarnings("ignore")
 
     for ds_name, sigmas in SIGMAS.items():
@@ -155,16 +161,20 @@ if __name__ == "__main__":
                 done += 1
                 print(f"  [{done:>2}/{total}] K={K}  α={alpha} ...", flush=True)
                 try:
-                    model = CLR_VND(K=K, l_max=1, alpha=alpha,
-                                    strategy="first", random_state=RANDOM_STATE)
+                    model = CLR_VND(
+                        K=K,
+                        l_max=1,
+                        alpha=alpha,
+                        strategy="first",
+                        random_state=RANDOM_STATE,
+                    )
                     model.fit(X_train, y_train)
                 except Exception as e:
                     print(f"    FAILED: {e}")
                     continue
 
                 methods = [
-                    ("★ Logistic clf",
-                     model.predict(X_test)),
+                    ("★ Logistic clf", model.predict(X_test)),
                 ]
 
                 all_rows[(K, alpha)] = [
