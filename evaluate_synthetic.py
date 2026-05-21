@@ -12,7 +12,7 @@ warnings.filterwarnings("ignore")
 # ── Config ────────────────────────────────────────────────────────────────────
 RANDOM_STATE  = 42
 N_PER_CLASS   = 100
-K_VALUES      = [1, 2, 3]
+K_VALUES      = [2, 3, 4]
 ALPHA_VALUES  = [1.0, 0.9, 0.75, 0.5, 0.25, 0.1]
 KIPOK_TRIES   = 1
 KIPOK_ITER    = 5
