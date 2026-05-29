@@ -223,3 +223,133 @@
   [16/18] [DS2] CLR_VND K=4  α=0.5 …
   [17/18] [DS2] CLR_VND K=4  α=0.25 …
   [18/18] [DS2] CLR_VND K=4  α=0.1 …
+  [plot] → boundary_plots/DS2_CLR_VND_a0.90.png
+
+══════════════════════════════════════════════════════════════════════════════════════════════════════════
+  DS2: X2 has 15x higher variance (global scale difference)
+══════════════════════════════════════════════════════════════════════════════════════════════════════════
+  Method                                  Test RMSE   Test R²  CV RMSE (mean±σ)    CV R² (mean±σ)
+  --------------------------------------------------------------------------------------------------
+  MLR (baseline)                             3.5043    0.2603     3.5596±0.1598     0.1757±0.0669
+
+  CLR_Kipok  K=2  (1 restart, 5 iters)  — sorted by test RMSE
+  inference             Test RMSE   Test R²  CV RMSE (mean±σ)    CV R² (mean±σ)
+  clrp                     1.3264    0.8940     1.8118±0.3391     0.7849±0.0613 ◄ best
+  knn                      1.3644    0.8879     1.7126±0.3180     0.8082±0.0520
+  rmse_local               1.3802    0.8853     1.6190±0.2274     0.8292±0.0341
+  knn_weighted             1.3936    0.8830     1.6076±0.2116     0.8316±0.0321
+  centroid                 2.3008    0.6811     2.1582±0.6614     0.6828±0.1836
+  distance                 2.8924    0.4961     2.7519±0.4359     0.5098±0.1075
+  weighted                 4.3554   -0.1426     4.2232±0.3614    -0.1679±0.1980
+  largest                  5.2695   -0.6726     5.1106±0.9088    -0.7743±0.6334
+
+  CLR_Kipok  K=3  (1 restart, 5 iters)  — sorted by test RMSE
+  inference             Test RMSE   Test R²  CV RMSE (mean±σ)    CV R² (mean±σ)
+  clrp                     1.2588    0.9046     1.6032±0.2793     0.8250±0.0643 ◄ best
+  rmse_local               1.3620    0.8883     1.4453±0.1436     0.8605±0.0367
+  knn_weighted             1.3828    0.8848     1.4482±0.1333     0.8601±0.0363
+  knn                      1.4855    0.8671     1.6546±0.1233     0.8209±0.0283
+  centroid                 1.4918    0.8660     2.1647±0.2815     0.6894±0.0802
+  distance                 2.8055    0.5259     2.6555±0.5092     0.5338±0.1670
+  weighted                 3.9588    0.0560     4.1073±0.4909    -0.0986±0.1989
+  largest                  5.3186   -0.7039     5.3678±1.1522    -0.9248±0.6833
+
+  CLR_Kipok  K=4  (1 restart, 5 iters)  — sorted by test RMSE
+  inference             Test RMSE   Test R²  CV RMSE (mean±σ)    CV R² (mean±σ)
+  clrp                     1.3399    0.8919     1.7289±0.3054     0.7908±0.0908 ◄ best
+  rmse_local               1.3709    0.8868     1.4240±0.1759     0.8650±0.0353
+  knn_weighted             1.4051    0.8811     1.4158±0.1685     0.8665±0.0348
+  knn                      1.5354    0.8580     1.6283±0.2826     0.8233±0.0557
+  centroid                 1.7245    0.8209     2.1757±0.2235     0.6904±0.0555
+  distance                 2.6994    0.5611     2.7759±0.2227     0.5022±0.0245
+  weighted                 3.8148    0.1234     3.9208±0.3091    -0.0071±0.1688
+  largest                  5.0978   -0.5653     5.1470±0.9333    -0.8699±0.8980
+
+  CLR_VND  K=2  (sorted by test RMSE)
+  alpha                 Test RMSE   Test R²  CV RMSE (mean±σ)    CV R² (mean±σ)
+  0.50                     1.4930    0.8657     1.4567±0.2127     0.8586±0.0419 ◄ best
+  0.25                     1.5121    0.8623     1.4686±0.2671     0.8579±0.0420
+  0.10                     1.5249    0.8599     1.4599±0.2545     0.8597±0.0398
+  1.00                     1.6061    0.8446     1.3801±0.1416     0.8719±0.0391
+  0.75                     1.6104    0.8438     1.4089±0.1663     0.8666±0.0414
+  0.90                     1.6134    0.8432     1.3896±0.1422     0.8705±0.0379
+
+  CLR_VND  K=3  (sorted by test RMSE)
+  alpha                 Test RMSE   Test R²  CV RMSE (mean±σ)    CV R² (mean±σ)
+  0.90                     1.2343    0.9082     1.7013±0.4399     0.8073±0.0878 ◄ best
+  0.25                     1.2686    0.9031     1.6283±0.5226     0.8138±0.1125
+  0.50                     1.2690    0.9030     1.6285±0.5345     0.8130±0.1172
+  0.10                     1.2729    0.9024     1.6441±0.5358     0.8095±0.1154
+  0.75                     1.3416    0.8916     1.5020±0.5528     0.8353±0.1264
+  1.00                     2.0880    0.7374     2.0075±0.7680     0.7121±0.1913
+
+  CLR_VND  K=4  (sorted by test RMSE)
+  alpha                 Test RMSE   Test R²  CV RMSE (mean±σ)    CV R² (mean±σ)
+  0.50                     1.2579    0.9047     1.3740±0.1682     0.8757±0.0282 ◄ best
+  0.25                     1.2608    0.9043     1.5980±0.5175     0.8207±0.1130
+  0.10                     1.3003    0.8981     1.6461±0.5260     0.8094±0.1138
+  0.75                     1.4505    0.8733     1.3636±0.1691     0.8752±0.0375
+  0.90                     1.4730    0.8693     1.6524±0.5060     0.8084±0.1208
+  1.00                     1.4894    0.8664     1.6481±0.4728     0.8124±0.1076
+
+
+[DS3] CV: MLR …
+
+[DS3] Fitting CLR_Kipok (K=2, 1 restart, 5 iters)…
+         cluster sizes: [110 130]
+         clrp             RMSE=1.7262  R²=0.7837
+           CV (clrp) …
+         largest          RMSE=4.5755  R²=-0.5195
+           CV (largest) …
+         weighted         RMSE=4.1632  R²=-0.2580
+           CV (weighted) …
+         centroid         RMSE=3.3997  R²=0.1611
+           CV (centroid) …
+         distance         RMSE=3.6694  R²=0.0228
+           CV (distance) …
+         knn              RMSE=2.3420  R²=0.6019
+           CV (knn) …
+         knn_weighted     RMSE=1.9454  R²=0.7253
+           CV (knn_weighted) …
+         rmse_local       RMSE=1.8345  R²=0.7557
+           CV (rmse_local) …
+
+[DS3] Fitting CLR_Kipok (K=3, 1 restart, 5 iters)…
+         cluster sizes: [74 82 84]
+  [plot] → boundary_plots/DS3_CLR_Kipok.png
+         clrp             RMSE=1.0828  R²=0.9149
+           CV (clrp) …
+         largest          RMSE=3.6817  R²=0.0162
+           CV (largest) …
+         weighted         RMSE=3.9159  R²=-0.1130
+           CV (weighted) …
+         centroid         RMSE=3.0929  R²=0.3057
+           CV (centroid) …
+         distance         RMSE=3.5420  R²=0.0894
+           CV (distance) …
+         knn              RMSE=1.1932  R²=0.8967
+           CV (knn) …
+         knn_weighted     RMSE=1.6544  R²=0.8013
+           CV (knn_weighted) …
+         rmse_local       RMSE=1.5062  R²=0.8353
+           CV (rmse_local) …
+
+[DS3] Fitting CLR_Kipok (K=4, 1 restart, 5 iters)…
+         cluster sizes: [58 58 71 53]
+         clrp             RMSE=1.2832  R²=0.8805
+           CV (clrp) …
+         largest          RMSE=7.2710  R²=-2.8371
+           CV (largest) …
+         weighted         RMSE=3.8437  R²=-0.0723
+           CV (weighted) …
+         centroid         RMSE=3.3181  R²=0.2009
+           CV (centroid) …
+         distance         RMSE=3.4573  R²=0.1324
+           CV (distance) …
+         knn              RMSE=2.1054  R²=0.6783
+           CV (knn) …
+         knn_weighted     RMSE=1.5938  R²=0.8156
+           CV (knn_weighted) …
+         rmse_local       RMSE=1.4557  R²=0.8462
+           CV (rmse_local) …
+  [ 1/18] [DS3] CLR_VND K=2  α=1.0 …
