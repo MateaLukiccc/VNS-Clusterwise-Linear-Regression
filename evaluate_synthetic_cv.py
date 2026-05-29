@@ -9,7 +9,8 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.linear_model import LinearRegression
 
-from alg import CLR_VND
+#from alg import CLR_VND
+from alg_tree import CLR_VND
 from clr_kipok_wrapper import CLR_Kipok
 
 warnings.filterwarnings("ignore")
@@ -108,6 +109,10 @@ def cross_validate(fit_fn, predict_fn, X, y, n_splits=N_FOLDS):
     """
     fit_fn(X_tr, y_tr)  -> fitted model
     predict_fn(m, X_te) -> prediction array
+
+    X and y must be the TRAINING split only — the held-out test set is
+    never passed here, so CV folds cannot leak test information.
+
     Returns (mean_rmse, std_rmse, mean_r2, std_r2).
     Folds that raise exceptions are skipped with a warning.
     """
@@ -132,30 +137,16 @@ def cross_validate(fit_fn, predict_fn, X, y, n_splits=N_FOLDS):
 def _cluster_label_fn(model):
     """Return a callable X_grid -> integer cluster labels for a fitted model."""
     if isinstance(model, CLR_Kipok):
-        # RandomForest classifier trained in fit()
         return lambda Xg: model.clf_.predict(Xg).astype(int)
     if isinstance(model, CLR_VND):
         if model.Theta_ is not None:
-            # Logistic regression trained in _vnd()
             return lambda Xg: model.Theta_.predict(Xg).astype(int)
-        # Degenerate case (K=1 or all-same cluster): constant assignment
         dominant = int(np.argmax(np.bincount(model.a_, minlength=model.K)))
         return lambda Xg: np.full(Xg.shape[0], dominant, dtype=int)
     raise TypeError(f"Unsupported model type: {type(model)}")
 
 
 def plot_cluster_boundaries(model, label, ds_name, X_train, save_dir=PLOT_DIR):
-    """
-    Save a PNG of K=3 cluster decision regions for a fitted CLR model.
-
-    Parameters
-    ----------
-    model     : fitted CLR_Kipok or CLR_VND with K=3
-    label     : short string appended to the filename, e.g. 'CLR_Kipok' or 'CLR_VND_a1.00'
-    ds_name   : dataset name used in the title and filename
-    X_train   : training features (N, 2) — scatter points coloured by model.a_
-    save_dir  : output directory
-    """
     K        = model.K
     labels   = model.a_
     pred_fn  = _cluster_label_fn(model)
@@ -166,7 +157,6 @@ def plot_cluster_boundaries(model, label, ds_name, X_train, save_dir=PLOT_DIR):
     x0_lo, x0_hi = x0.min() - pad, x0.max() + pad
     x1_lo, x1_hi = x1.min() - pad, x1.max() + pad
 
-    # Adaptive step: ~350 cells on the longer axis
     step = max(x0_hi - x0_lo, x1_hi - x1_lo) / 350.0
     xx, yy = np.meshgrid(
         np.arange(x0_lo, x0_hi, step),
@@ -208,7 +198,6 @@ def plot_cluster_boundaries(model, label, ds_name, X_train, save_dir=PLOT_DIR):
 
 # ── Pretty printing ───────────────────────────────────────────────────────────
 def _cv_str(cv_results, key):
-    """Format one CV entry as 'mean±std' strings, or '—' if missing."""
     if key not in cv_results or any(np.isnan(cv_results[key])):
         return f"{'—':>14}", f"{'—':>14}"
     mr, sr, mr2, sr2 = cv_results[key]
@@ -225,12 +214,10 @@ def print_comparison(results: dict, cv_results: dict, ds_name: str) -> None:
     print(hdr)
     print(f"  {'-'*98}")
 
-    # MLR baseline
     rm, r2 = results['MLR']
     cr, cr2 = _cv_str(cv_results, 'MLR')
     print(f"  {'MLR (baseline)':<38}  {rm:>9.4f}  {r2:>8.4f}  {cr:>16}  {cr2:>16}")
 
-    # CLR_Kipok — one sorted block per K
     for K in K_VALUES:
         print()
         kipok_rows = sorted(
@@ -251,7 +238,6 @@ def print_comparison(results: dict, cv_results: dict, ds_name: str) -> None:
             marker = " ◄ best" if method == kipok_rows[0][0] else ""
             print(f"  {method:<20}  {rm:>9.4f}  {r2:>8.4f}  {cr:>16}  {cr2:>16}{marker}")
 
-    # CLR_VND — one sorted block per K
     for K in K_VALUES:
         print()
         vnd_rows = sorted(
@@ -279,21 +265,25 @@ if __name__ == "__main__":
 
     for ds_name, sigmas in SIGMAS.items():
         X, y = generate_dataset(sigmas)
+
+        # ── Hold out 20 % as a true, never-touched test set ───────────────────
         X_tr, X_te, y_tr, y_te = train_test_split(
             X, y, test_size=0.20, random_state=RANDOM_STATE
         )
-        results    = {}   # key -> (test_rmse, test_r2)
-        cv_results = {}   # key -> (mean_rmse, std_rmse, mean_r2, std_r2)
+
+        results    = {}
+        cv_results = {}
 
         # ── MLR baseline ──────────────────────────────────────────────────────
         mlr = LinearRegression().fit(X_tr, y_tr)
         results['MLR'] = metrics(y_te, mlr.predict(X_te))
 
         print(f"\n[{ds_name}] CV: MLR …", flush=True)
+        # CV on training data only
         cv_results['MLR'] = cross_validate(
             lambda Xtr, ytr: LinearRegression().fit(Xtr, ytr),
             lambda m, Xte:   m.predict(Xte),
-            X, y,
+            X_tr, y_tr,   # <-- training split only
         )
 
         # ── CLR_Kipok ─────────────────────────────────────────────────────────
@@ -307,7 +297,6 @@ if __name__ == "__main__":
             ).fit(X_tr, y_tr)
             print(f"         cluster sizes: {kipok.cluster_sizes()}", flush=True)
 
-            # Cluster boundary plot (K=3 only, once per model — uses clrp/RF boundaries)
             if K == 3:
                 plot_cluster_boundaries(kipok, "CLR_Kipok", ds_name, X_tr)
 
@@ -319,7 +308,6 @@ if __name__ == "__main__":
                 print(f"         {method:<16} RMSE={rm:.4f}  R²={r2:.4f}",
                       flush=True)
 
-                # CV — refit the full Kipok per fold, then use this method
                 print(f"           CV ({method}) …", flush=True)
                 cv_results[key] = cross_validate(
                     lambda Xtr, ytr, _K=K: CLR_Kipok(
@@ -328,13 +316,12 @@ if __name__ == "__main__":
                     ).fit(Xtr, ytr),
                     lambda m, Xte, _met=method: m.predict(
                         Xte, method=_met, K_neighbors=KNN_K),
-                    X, y,
+                    X_tr, y_tr,   # <-- training split only
                 )
 
         # ── CLR_VND ───────────────────────────────────────────────────────────
         total = len(K_VALUES) * len(ALPHA_VALUES)
         done  = 0
-        # Track best K=3 VND model (by test RMSE) for the boundary plot
         best_vnd_k3_model = None
         best_vnd_k3_rmse  = float("inf")
         best_vnd_k3_alpha = None
@@ -351,17 +338,15 @@ if __name__ == "__main__":
                     ).fit(X_tr, y_tr)
                     results[(K, alpha)] = metrics(y_te, vnd.predict(X_te))
 
-                    # CV
                     cv_results[(K, alpha)] = cross_validate(
                         lambda Xtr, ytr, _K=K, _a=alpha: CLR_VND(
                             K=_K, l_max=1, alpha=_a,
                             strategy="first", random_state=RANDOM_STATE,
                         ).fit(Xtr, ytr),
                         lambda m, Xte: m.predict(Xte),
-                        X, y,
+                        X_tr, y_tr,   # <-- training split only
                     )
 
-                    # Keep the best K=3 model for the boundary plot
                     if K == 3:
                         rm_test = results[(K, alpha)][0]
                         if rm_test < best_vnd_k3_rmse:
@@ -372,7 +357,6 @@ if __name__ == "__main__":
                 except Exception as e:
                     print(f"    FAILED: {e}")
 
-        # Cluster boundary plot for the best K=3 VND configuration
         if best_vnd_k3_model is not None:
             plot_cluster_boundaries(
                 best_vnd_k3_model,
