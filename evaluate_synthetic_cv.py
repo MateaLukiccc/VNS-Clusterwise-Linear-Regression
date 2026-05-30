@@ -35,17 +35,17 @@ MU = [
 ]
 
 SIGMAS = {
-    "DS1": [
-        np.array([[1.0,  0.0], [0.0,  1.0]]),
-        np.array([[1.0,  0.0], [0.0,  1.0]]),
-        np.array([[1.0,  0.0], [0.0,  1.0]]),
-    ],
-    "DS2": [
-        np.array([[1.0,  0.0], [0.0, 15.0]]),
-        np.array([[1.0,  0.0], [0.0, 15.0]]),
-        np.array([[1.0,  0.0], [0.0, 15.0]]),
-    ],
-    "DS3": [
+    # "DS1": [
+    #     np.array([[1.0,  0.0], [0.0,  1.0]]),
+    #     np.array([[1.0,  0.0], [0.0,  1.0]]),
+    #     np.array([[1.0,  0.0], [0.0,  1.0]]),
+    # ],
+    # "DS2": [
+    #     np.array([[1.0,  0.0], [0.0, 15.0]]),
+    #     np.array([[1.0,  0.0], [0.0, 15.0]]),
+    #     np.array([[1.0,  0.0], [0.0, 15.0]]),
+    # ],
+     "DS3": [
         np.array([[0.01, 0.0], [0.0, 15.0]]),
         np.array([[1.0,  0.0], [0.0,  1.0]]),
         np.array([[15.0, 0.0], [0.0,  0.01]]),
@@ -63,8 +63,8 @@ SIGMAS = {
 }
 
 DESCRIPTIONS = {
-    "DS1": "Baseline — spherical equal-variance clusters",
-    "DS2": "X2 has 15x higher variance (global scale difference)",
+    # "DS1": "Baseline — spherical equal-variance clusters",
+    # "DS2": "X2 has 15x higher variance (global scale difference)",
     "DS3": "Different relevant variable per class (local relevance)",
     "DS4": "Same non-zero cross-covariance for all classes (correlated)",
     "DS5": "Different covariance per class + cross-covariance (hardest)",
